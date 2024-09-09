@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const port = 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -24,6 +24,7 @@ async function run() {
     const dashboardCountCollection = client
       .db("taskify")
       .collection("dashboardCount");
+    const projectsCollection = client.db("taskify").collection("projects");
 
     app.get("/dashboardCount", async (req, res) => {
       try {
@@ -42,6 +43,56 @@ async function run() {
         });
       }
     });
+    app.get("/projects", async (req, res) => {
+      try {
+        const result = await projectsCollection.find().toArray();
+        res.status(200).json({
+          success: true,
+          data: result,
+          message: "Projects retrieved successfully",
+        });
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to fetch projects",
+          message: error.message,
+        });
+      }
+    });
+    app.put("/projects/:id", async (req, res) => {
+      const projectId = req.params.id;
+      const updatedData = req.body;
+    
+      const { _id, ...updateFields } = updatedData;
+    
+      try {
+        const result = await projectsCollection.updateOne(
+          { _id: new ObjectId(projectId) },
+          { $set: updateFields }
+        );
+    
+        if (result.modifiedCount === 1) {
+          res.status(200).json({
+            success: true,
+            message: "Project updated successfully",
+          });
+        } else {
+          res.status(404).json({
+            success: false,
+            message: "Project not found or no changes made",
+          });
+        }
+      } catch (error) {
+        console.error("Error updating project:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to update project",
+          message: error.message,
+        });
+      }
+    });
+    
   } catch (error) {
     console.error("MongoDB connection error:", error);
     process.exit(1); // Exit the process if the MongoDB connection fails
