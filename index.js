@@ -92,6 +92,33 @@ async function run() {
         });
       }
     });
+    app.delete("/projects/:id", async (req, res) => {
+      const projectId = req.params.id;
+    
+      try {
+        const result = await projectsCollection.deleteOne({ _id: new ObjectId(projectId) });
+    
+        if (result.deletedCount === 1) {
+          res.status(200).json({
+            success: true,
+            message: "Project deleted successfully",
+          });
+        } else {
+          res.status(404).json({
+            success: false,
+            message: "Project not found",
+          });
+        }
+      } catch (error) {
+        console.error("Error deleting project:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to delete project",
+          message: error.message,
+        });
+      }
+    });
+    
     
   } catch (error) {
     console.error("MongoDB connection error:", error);
