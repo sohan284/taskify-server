@@ -44,17 +44,11 @@ const getAllProjects = async (req, res) => {
 const createProject = async (req, res) => {
   try {
     const projectData = req.body;
-
-    // Get the database and collection
     const projectsCollection = getDB("taskify").collection("projects");
-
-    // Insert the new project
     const result = await projectsCollection.insertOne(projectData);
-
-    // Respond with the created project
     res.status(201).json({
       success: true,
-      data: { _id: result.insertedId, ...projectData }, // Return the inserted project with the ID
+      data: { _id: result.insertedId, ...projectData },
       message: "Project created successfully",
     });
   } catch (error) {
