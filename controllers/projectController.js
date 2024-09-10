@@ -41,6 +41,36 @@ const getAllProjects = async (req, res) => {
     });
   }
 };
+const getAllFavouriteProjects = async (req, res) => {
+  try {
+    const projectsCollection = getDB("taskify").collection("projects");
+    // Filter projects where favourite is true
+    const result = await projectsCollection.find({ favourite: true }).toArray();
+
+    // Check if no favourite projects are found
+    if (result.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        message: "No favourite projects found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Favourite projects retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching favourite projects:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch favourite projects",
+      message: error.message,
+    });
+  }
+};
+
 const createProject = async (req, res) => {
   try {
     const projectData = req.body;
@@ -64,7 +94,8 @@ const createProject = async (req, res) => {
 // Update a project
 const updateProject = async (req, res) => {
   const projectId = req.params.id;
-  const { status, ...updateFields } = req.body;
+  const { status, favourite, ...updateFields } = req.body;
+  const projectsCollection = getDB("taskify").collection("projects");
 
   // Define allowed status values
   const allowedStatuses = ["default", "started", "on going", "in review"];
@@ -79,37 +110,42 @@ const updateProject = async (req, res) => {
     });
   }
 
+  // Validate the favourite field (optional)
+  if (typeof favourite !== "undefined" && typeof favourite !== "boolean") {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Invalid value for favourite. It must be a boolean (true or false).",
+    });
+  }
+
   try {
-    const projectsCollection = getDB("taskify").collection("projects");
-
-    // Prepare the update object
-    const updateObject = { $set: { ...updateFields } };
-    if (status) {
-      updateObject.$set.status = status;
-    }
-
-    const result = await projectsCollection.updateOne(
-      { _id: new ObjectId(projectId) },
-      updateObject
+    // Combine the fields to update, including status and favourite
+    const result = await projectsCollection.findOneAndUpdate(
+      { _id: new ObjectId(projectId) }, // Find the project by ID
+      { $set: { ...updateFields, status, favourite } }, // Update fields
+      { returnDocument: "after" } // Return the updated document
     );
 
-    if (result.modifiedCount === 1) {
-      res.status(200).json({
-        success: true,
-        message: "Project updated successfully",
-      });
-    } else {
-      res.status(404).json({
+    const updatedProject = result.value;
+
+    if (!updatedProject) {
+      return res.status(404).json({
         success: false,
-        message: "Project not found or no changes made",
+        message: "Project not found",
       });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: updatedProject,
+    });
   } catch (error) {
-    console.error("Error updating project:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to update project",
-      message: error.message,
+      message: "An error occurred while updating the project",
+      error: error.message,
     });
   }
 };
@@ -151,4 +187,5 @@ module.exports = {
   getAllProjects,
   updateProject,
   deleteProject,
+  getAllFavouriteProjects,
 };
