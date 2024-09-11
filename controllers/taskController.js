@@ -1,50 +1,53 @@
 const { ObjectId } = require("mongodb");
 const { getDB } = require("../config/db");
 
-// Get all Tasks
+// Get dashboard count
+
+
+// Get all tasks
 const getAllTasks = async (req, res) => {
   try {
-    const TasksCollection = getDB("taskify").collection("Tasks");
-    const result = await TasksCollection.find().toArray();
+    const tasksCollection = getDB("taskify").collection("tasks");
+    const result = await tasksCollection.find().toArray();
     res.status(200).json({
       success: true,
       data: result,
       message: "Tasks retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching Tasks:", error);
+    console.error("Error fetching tasks:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch Tasks",
+      error: "Failed to fetch tasks",
       message: error.message,
     });
   }
 };
 const getAllFavouriteTasks = async (req, res) => {
   try {
-    const TasksCollection = getDB("taskify").collection("Tasks");
-    // Filter Tasks where favourite is true
-    const result = await TasksCollection.find({ favourite: true }).toArray();
+    const tasksCollection = getDB("taskify").collection("tasks");
+    // Filter tasks where favourite is true
+    const result = await tasksCollection.find({ favourite: true }).toArray();
 
-    // Check if no favourite Tasks are found
+    // Check if no favourite tasks are found
     if (result.length === 0) {
       return res.status(200).json({
         success: true,
         data: [],
-        message: "No favourite Tasks found",
+        message: "No favourite tasks found",
       });
     }
 
     res.status(200).json({
       success: true,
       data: result,
-      message: "Favourite Tasks retrieved successfully",
+      message: "Favourite tasks retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching favourite Tasks:", error);
+    console.error("Error fetching favourite tasks:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch favourite Tasks",
+      error: "Failed to fetch favourite tasks",
       message: error.message,
     });
   }
@@ -52,29 +55,29 @@ const getAllFavouriteTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
   try {
-    const TaskData = req.body;
-    const TasksCollection = getDB("taskify").collection("Tasks");
-    const result = await TasksCollection.insertOne(TaskData);
+    const taskData = req.body;
+    const tasksCollection = getDB("taskify").collection("tasks");
+    const result = await tasksCollection.insertOne(taskData);
     res.status(201).json({
       success: true,
-      data: { _id: result.insertedId, ...TaskData },
+      data: { _id: result.insertedId, ...taskData },
       message: "Task created successfully",
     });
   } catch (error) {
-    console.error("Error creating Task:", error);
+    console.error("Error creating task:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to create Task",
+      message: "Failed to create task",
       error: error.message,
     });
   }
 };
 
-// Update a Task
+// Update a task
 const updateTask = async (req, res) => {
-  const TaskId = req.params.id;
+  const taskId = req.params.id;
   const { status, favourite, ...updateFields } = req.body;
-  const TasksCollection = getDB("taskify").collection("Tasks");
+  const tasksCollection = getDB("taskify").collection("tasks");
 
   // Define allowed status values
   const allowedStatuses = ["default", "started", "on going", "in review"];
@@ -121,8 +124,8 @@ const updateTask = async (req, res) => {
 
   try {
     // Perform the update operation
-    const result = await TasksCollection.findOneAndUpdate(
-      { _id: new ObjectId(TaskId) }, // Find the Task by ID
+    const result = await tasksCollection.findOneAndUpdate(
+      { _id: new ObjectId(taskId) }, // Find the task by ID
       { $set: updateFieldsToSet }, // Update only the fields present in the request
       { returnDocument: "after" } // Return the updated document
     );
@@ -145,10 +148,10 @@ const updateTask = async (req, res) => {
       data: updatedTask,
     });
   } catch (error) {
-    console.error("Error updating Task:", error);
+    console.error("Error updating task:", error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while updating the Task",
+      message: "An error occurred while updating the task",
       error: error.message,
     });
   }
@@ -158,14 +161,14 @@ const updateTask = async (req, res) => {
 
 
 
-// Delete a Task
+// Delete a task
 const deleteTask = async (req, res) => {
-  const TaskId = req.params.id;
+  const taskId = req.params.id;
 
   try {
-    const TasksCollection = getDB("taskify").collection("Tasks");
-    const result = await TasksCollection.deleteOne({
-      _id: new ObjectId(TaskId),
+    const tasksCollection = getDB("taskify").collection("tasks");
+    const result = await tasksCollection.deleteOne({
+      _id: new ObjectId(taskId),
     });
 
     if (result.deletedCount === 1) {
@@ -180,10 +183,10 @@ const deleteTask = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error deleting Task:", error);
+    console.error("Error deleting task:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to delete Task",
+      error: "Failed to delete task",
       message: error.message,
     });
   }
@@ -194,5 +197,4 @@ module.exports = {
   getAllTasks,
   updateTask,
   deleteTask,
-  getAllFavouriteTasks,
 };
