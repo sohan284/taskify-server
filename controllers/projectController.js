@@ -21,7 +21,6 @@ const getDashboardCount = async (req, res) => {
     });
   }
 };
-
 // Get all projects
 const getAllProjects = async (req, res) => {
   try {
@@ -70,7 +69,6 @@ const getAllFavouriteProjects = async (req, res) => {
     });
   }
 };
-
 const createProject = async (req, res) => {
   try {
     const projectData = req.body;
@@ -90,7 +88,6 @@ const createProject = async (req, res) => {
     });
   }
 };
-
 // Update a project
 const updateProject = async (req, res) => {
   const projectId = req.params.id;
@@ -174,10 +171,6 @@ const updateProject = async (req, res) => {
     });
   }
 };
-
-
-
-
 
 // Delete a project
 const deleteProject = async (req, res) => {

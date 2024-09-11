@@ -3,6 +3,7 @@ const cors = require("cors");
 const { connectDB } = require("./config/db");
 const projectRoutes = require("./routes/projectRoutes");
 const taskRoutes = require("./routes/taskRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -15,7 +16,7 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use("/", projectRoutes ,taskRoutes);
+app.use("/", projectRoutes ,taskRoutes,userRoutes);
 
 // Base route
 app.get("/", (req, res) => {
