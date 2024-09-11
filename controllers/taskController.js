@@ -1,8 +1,6 @@
 const { ObjectId } = require("mongodb");
 const { getDB } = require("../config/db");
 
-// Get dashboard count
-
 
 // Get all tasks
 const getAllTasks = async (req, res) => {
@@ -19,35 +17,6 @@ const getAllTasks = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch tasks",
-      message: error.message,
-    });
-  }
-};
-const getAllFavouriteTasks = async (req, res) => {
-  try {
-    const tasksCollection = getDB("taskify").collection("tasks");
-    // Filter tasks where favourite is true
-    const result = await tasksCollection.find({ favourite: true }).toArray();
-
-    // Check if no favourite tasks are found
-    if (result.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [],
-        message: "No favourite tasks found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: result,
-      message: "Favourite tasks retrieved successfully",
-    });
-  } catch (error) {
-    console.error("Error fetching favourite tasks:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch favourite tasks",
       message: error.message,
     });
   }
@@ -76,7 +45,7 @@ const createTask = async (req, res) => {
 // Update a task
 const updateTask = async (req, res) => {
   const taskId = req.params.id;
-  const { status, favourite, ...updateFields } = req.body;
+  const { status, ...updateFields } = req.body;
   const tasksCollection = getDB("taskify").collection("tasks");
 
   // Define allowed status values
@@ -90,24 +59,12 @@ const updateTask = async (req, res) => {
     });
   }
 
-  // Validate the favourite field (optional)
-  if (typeof favourite !== "undefined" && typeof favourite !== "boolean") {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid value for favourite. It must be a boolean (true or false).",
-    });
-  }
-
   // Construct the $set object dynamically based on provided fields
   const updateFieldsToSet = {};
 
   // Include only fields present in the request
   if (status !== undefined) {
     updateFieldsToSet.status = status;
-  }
-
-  if (favourite !== undefined) {
-    updateFieldsToSet.favourite = favourite;
   }
 
   // Include other fields for update if provided
