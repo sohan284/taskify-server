@@ -13,7 +13,7 @@
       }
     ],
     "env": {
-      "MONGO_URI": "@mongo-uri",
+      "MONGO_URI": "mongodb+srv://taskify:sY8hOL3hPep60pLS@cluster0.5jhcp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
       "PORT": "5000"
     }
   }
