@@ -1,10 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-const { connectDB } = require("../config/db");
-const projectRoutes = require("../routes/projectRoutes");
-const taskRoutes = require("../routes/taskRoutes");
-const userRoutes = require("../routes/userRoutes");
-const todosRoutes = require("../routes/todosRoutes");
+const { connectDB } = require("./config/db");
+const projectRoutes = require("./routes/projectRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const userRoutes = require("./routes/userRoutes");
+const todosRoutes = require("./routes/todosRoutes");
 
 const app = express();
 

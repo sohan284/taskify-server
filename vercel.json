@@ -1,21 +1,10 @@
 {
     "version": 2,
-    "functions": {
-      "server.js": {
-        "memory": 1024,
-        "maxDuration": 10
-      }
-    },
- "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/server.js"
-    }
-  ],
-
-    "env": {
-      "MONGO_URI": "mongodb+srv://taskify:sY8hOL3hPep60pLS@cluster0.5jhcp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-      "PORT": "5000"
-    }
+    "builds": [
+      { "src": "server.js", "use": "@vercel/node" }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/server.js" }
+    ]
   }
   
