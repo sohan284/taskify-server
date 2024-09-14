@@ -26,7 +26,7 @@ const getDashboardCount = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
   try {
-    const { status, user , client } = req.query; 
+    const { status, user , client ,start_date_from,start_date_to,end_date_from,end_date_to } = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = {};
@@ -52,6 +52,29 @@ const getAllProjects = async (req, res) => {
       filter["clients._id"] = (client);
     }
 
+    // dates
+    if (start_date_from || start_date_to) {
+      filter.startsAt = {};
+      if (start_date_from) {
+        filter.startsAt.$gte = start_date_from; // Start date is greater than or equal to start_date_from
+      }
+      if (start_date_to) {
+        filter.startsAt.$lte = start_date_to; // Start date is less than or equal to start_date_to
+      }
+    }
+
+    // end  
+    if (end_date_from || end_date_to) {
+      filter.endsAt = {};
+      if (end_date_from) {
+        filter.endsAt.$gte = end_date_from; // Start date is greater than or equal to start_date_from
+      }
+      if (end_date_to) {
+        filter.endsAt.$lte = end_date_to; // Start date is less than or equal to start_date_to
+      }
+    }
+    
+
     const result = await projectsCollection.find(filter).toArray();
 
     res.status(200).json({
@@ -71,7 +94,7 @@ const getAllProjects = async (req, res) => {
 
 const getAllFavouriteProjects = async (req, res) => {
   try {
-    const { status, user, client } = req.query; 
+    const { status, user, client,start_date_from,start_date_to,end_date_from,end_date_to } = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = { favourite: true }; // Filter for favourite projects
@@ -97,7 +120,26 @@ const getAllFavouriteProjects = async (req, res) => {
       }
       filter["clients._id"] = (client);
     }
+    if (start_date_from || start_date_to) {
+      filter.startsAt = {};
+      if (start_date_from) {
+        filter.startsAt.$gte = start_date_from; // Start date is greater than or equal to start_date_from
+      }
+      if (start_date_to) {
+        filter.startsAt.$lte = start_date_to; // Start date is less than or equal to start_date_to
+      }
+    }
 
+    // end  
+    if (end_date_from || end_date_to) {
+      filter.endsAt = {};
+      if (end_date_from) {
+        filter.endsAt.$gte = end_date_from; // Start date is greater than or equal to start_date_from
+      }
+      if (end_date_to) {
+        filter.endsAt.$lte = end_date_to; // Start date is less than or equal to start_date_to
+      }
+    }
     const result = await projectsCollection.find(filter).toArray();
 
     // Check if no favourite projects are found

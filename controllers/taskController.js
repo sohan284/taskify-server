@@ -59,15 +59,12 @@ const updateTask = async (req, res) => {
     });
   }
 
-  // Construct the $set object dynamically based on provided fields
   const updateFieldsToSet = {};
 
-  // Include only fields present in the request
   if (status !== undefined) {
     updateFieldsToSet.status = status;
   }
 
-  // Include other fields for update if provided
   for (const [key, value] of Object.entries(updateFields)) {
     updateFieldsToSet[key] = value;
   }
