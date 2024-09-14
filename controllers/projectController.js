@@ -21,11 +21,29 @@ const getDashboardCount = async (req, res) => {
     });
   }
 };
-// Get all projects
+
+// all projects 
+
 const getAllProjects = async (req, res) => {
   try {
+    const { status, user } = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
-    const result = await projectsCollection.find().toArray();
+
+    const filter = {};
+    if (status) filter.status = status; 
+
+    if (user) {
+      if (!ObjectId.isValid(user)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user ID format",
+        });
+      }
+      filter["users._id"] = (user);
+    }
+
+    const result = await projectsCollection.find(filter).toArray();
+
     res.status(200).json({
       success: true,
       data: result,
@@ -40,6 +58,7 @@ const getAllProjects = async (req, res) => {
     });
   }
 };
+
 const getAllFavouriteProjects = async (req, res) => {
   try {
     const projectsCollection = getDB("taskify").collection("projects");
