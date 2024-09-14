@@ -26,7 +26,7 @@ const getDashboardCount = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
   try {
-    const { status, user , client ,start_date_from,start_date_to,end_date_from,end_date_to } = req.query; 
+    const { status, user , client ,start_date_from,start_date_to,end_date_from,end_date_to,search } = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = {};
@@ -73,7 +73,11 @@ const getAllProjects = async (req, res) => {
         filter.endsAt.$lte = end_date_to; // Start date is less than or equal to start_date_to
       }
     }
-    
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }
+      ];
+    }
 
     const result = await projectsCollection.find(filter).toArray();
 
@@ -94,7 +98,7 @@ const getAllProjects = async (req, res) => {
 
 const getAllFavouriteProjects = async (req, res) => {
   try {
-    const { status, user, client,start_date_from,start_date_to,end_date_from,end_date_to } = req.query; 
+    const { status, user, client,start_date_from,start_date_to,end_date_from,end_date_to,search} = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = { favourite: true }; // Filter for favourite projects
@@ -140,6 +144,13 @@ const getAllFavouriteProjects = async (req, res) => {
         filter.endsAt.$lte = end_date_to; // Start date is less than or equal to start_date_to
       }
     }
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }
+      ];
+    }
+
     const result = await projectsCollection.find(filter).toArray();
 
     // Check if no favourite projects are found
