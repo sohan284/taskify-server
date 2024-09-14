@@ -26,7 +26,7 @@ const getDashboardCount = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
   try {
-    const { status, user } = req.query; 
+    const { status, user , client } = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = {};
@@ -40,6 +40,16 @@ const getAllProjects = async (req, res) => {
         });
       }
       filter["users._id"] = (user);
+    }
+
+    if (client) {
+      if (!ObjectId.isValid(client)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user ID format",
+        });
+      }
+      filter["clients._id"] = (client);
     }
 
     const result = await projectsCollection.find(filter).toArray();
@@ -61,9 +71,34 @@ const getAllProjects = async (req, res) => {
 
 const getAllFavouriteProjects = async (req, res) => {
   try {
+    const { status, user, client } = req.query; 
     const projectsCollection = getDB("taskify").collection("projects");
-    // Filter projects where favourite is true
-    const result = await projectsCollection.find({ favourite: true }).toArray();
+
+    const filter = { favourite: true }; // Filter for favourite projects
+
+    if (status) filter.status = status; 
+
+    if (user) {
+      if (!ObjectId.isValid(user)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user ID format",
+        });
+      }
+      filter["users._id"] = (user);
+    }
+
+    if (client) {
+      if (!ObjectId.isValid(client)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid client ID format",
+        });
+      }
+      filter["clients._id"] = (client);
+    }
+
+    const result = await projectsCollection.find(filter).toArray();
 
     // Check if no favourite projects are found
     if (result.length === 0) {
@@ -88,6 +123,7 @@ const getAllFavouriteProjects = async (req, res) => {
     });
   }
 };
+
 const createProject = async (req, res) => {
   try {
     const projectData = req.body;
