@@ -5,6 +5,7 @@ const projectRoutes = require("./routes/projectRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const userRoutes = require("./routes/userRoutes");
 const todosRoutes = require("./routes/todosRoutes");
+const statusesRoutes = require("./routes/statusRoutes")
 const port = 5000
 
 const app = express();
@@ -17,7 +18,7 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use("/", projectRoutes, taskRoutes, userRoutes, todosRoutes);
+app.use("/", projectRoutes, taskRoutes, userRoutes, todosRoutes,statusesRoutes);
 
 // Base route
 app.get("/", (req, res) => {
