@@ -103,7 +103,8 @@ const getAllFavouriteProjects = async (req, res) => {
 
     const filter = { favourite: true }; // Filter for favourite projects
 
-    if (status) filter.status = status; 
+    
+    if (status) filter["status.title"] = status;
 
     if (user) {
       if (!ObjectId.isValid(user)) {
