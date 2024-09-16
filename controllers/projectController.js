@@ -30,7 +30,7 @@ const getAllProjects = async (req, res) => {
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = {};
-    if (status) filter.status = status; 
+    if (status) filter["status.title"] = status;
 
     if (user) {
       if (!ObjectId.isValid(user)) {
@@ -202,17 +202,6 @@ const updateProject = async (req, res) => {
   const { status, favourite, ...updateFields } = req.body;
   const projectsCollection = getDB("taskify").collection("projects");
 
-  // Define allowed status values
-  const allowedStatuses = ["default", "started", "on going", "in review"];
-
-  // Check if the status is valid
-  if (status && !allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: `Invalid status value: ${status}. Allowed values are: ${allowedStatuses.join(", ")}`,
-    });
-  }
-
   // Validate the favourite field (optional)
   if (typeof favourite !== "undefined" && typeof favourite !== "boolean") {
     return res.status(400).json({
@@ -234,10 +223,11 @@ const updateProject = async (req, res) => {
   }
 
   // Include other fields for update if provided
-  for (const [key, value] of Object.entries(updateFields)) {
+  Object.entries(updateFields).forEach(([key, value]) => {
     updateFieldsToSet[key] = value;
-  }
+  });
 
+  // Ensure that some fields are provided for the update
   if (Object.keys(updateFieldsToSet).length === 0) {
     return res.status(400).json({
       success: false,
@@ -250,7 +240,7 @@ const updateProject = async (req, res) => {
     const result = await projectsCollection.findOneAndUpdate(
       { _id: new ObjectId(projectId) }, // Find the project by ID
       { $set: updateFieldsToSet }, // Update only the fields present in the request
-      { returnDocument: "after" } // Return the updated document
+      { returnDocument: "after" } // Return the updated document after modification
     );
 
     // Log the result of the update operation
@@ -258,23 +248,17 @@ const updateProject = async (req, res) => {
 
     const updatedProject = result.value;
 
-    // if (!updatedProject) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Project not found",
-    //   });
-    // }
-
+    // Successfully updated project
     res.status(200).json({
       success: true,
-      message: "Project updated successfully",
+      message: "Project updated successfully.",
       data: updatedProject,
     });
   } catch (error) {
     console.error("Error updating project:", error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while updating the project",
+      message: "An error occurred while updating the project.",
       error: error.message,
     });
   }
