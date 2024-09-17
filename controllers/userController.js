@@ -23,34 +23,78 @@ const getUserList = async (req, res) => {
 
 const upsertUser = async (req, res) => {
     try {
-        const usersCollection = getDB("taskify").collection("users");
-        // const email = req.params.email;
-        const { photoURL, displayName ,email } = req.body;
-
-        const filter = { email: email };
-        const options = { upsert: true };
-        const updateDoc = {
-            $set: { photoURL, displayName ,email },
-        };
-
-        const result = await usersCollection.updateOne(filter, updateDoc, options);
-        // const token = jwt.encode({ email: email }, process.env.ACCESS_TOKEN_SECRET, 'HS256', { expiresIn: '1h' });
-
-        res.status(200).json({
-            success: true,
-            data: result,
-            // token: token,
-            message: "User upserted successfully",
+      const usersCollection = getDB("taskify").collection("users");
+      const {
+        displayName,
+        lastName,
+        email,
+        countryCode,
+        phoneNumber,
+        password,
+        confirmPassword,
+        dateOfBirth,
+        dateOfJoining,
+        role,
+        address,
+        city,
+        state,
+        country,
+        zipCode,
+        status,
+        requireEmailVerification,
+        photoURL,
+      } = req.body;
+  
+      // Ensure password matches confirmPassword
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          error: "Passwords do not match",
         });
+      }
+  
+      // Build the filter based on the user's email (upsert will either update or insert)
+      const filter = { email };
+      const options = { upsert: true };
+  
+      const updateDoc = {
+        $set: {
+          displayName,
+          lastName,
+          email,
+          countryCode,
+          phoneNumber,
+          password, // You should hash this before saving it in production for security
+          dateOfBirth,
+          dateOfJoining,
+          role,
+          address,
+          city,
+          state,
+          country,
+          zipCode,
+          status,
+          requireEmailVerification,
+          photoURL,
+        },
+      };
+  
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+  
+      res.status(200).json({
+        success: true,
+        data: result,
+        message: "User upserted successfully",
+      });
     } catch (error) {
-        console.error("Error upserting user:", error);
-        res.status(500).json({
-            success: false,
-            error: "Failed to upsert user",
-            message: error.message,
-        });
+      console.error("Error upserting user:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to upsert user",
+        message: error.message,
+      });
     }
-};
+  };
 
 module.exports = {
     getUserList,
