@@ -40,9 +40,9 @@ const createNote = async (req, res) => {
   }
 };
 
-const updateStatus = async (req, res) => {
+const updateNote = async (req, res) => {
   const statusId = req.params.id;
-  const { title, txColor, bgColor } = req.body;
+  const { title, txColor, bgColor,description } = req.body;
 
   // Check if the ID is valid
   if (!ObjectId.isValid(statusId)) {
@@ -54,7 +54,7 @@ const updateStatus = async (req, res) => {
   }
 
   // Validate that only title and color fields are allowed
-  const allowedFields = ["title", "txColor", "bgColor"];
+  const allowedFields = ["title", "txColor", "bgColor","description"];
   const invalidFields = Object.keys(req.body).filter(
     (key) => !allowedFields.includes(key)
   );
@@ -67,13 +67,14 @@ const updateStatus = async (req, res) => {
   }
 
   try {
-    const statusesCollection = getDB("taskify").collection("statuses");
+    const statusesCollection = getDB("taskify").collection("notes");
     const updateFields = {};
 
     // Update fields only if they are provided in the request body
     if (title !== undefined) updateFields.title = title;
     if (txColor !== undefined) updateFields.txColor = txColor;
     if (bgColor !== undefined) updateFields.bgColor = bgColor;
+    if (description !== undefined) updateFields.description = description;
 
     const result = await statusesCollection.updateOne(
       { _id: new ObjectId(statusId) },
@@ -134,6 +135,6 @@ const deleteNote = async (req, res) => {
 module.exports = {
   getNotes,
   createNote,
-  updateStatus,
+  updateNote,
   deleteNote,
 };
