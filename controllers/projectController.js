@@ -7,14 +7,14 @@ const getDashboardCount = async (req, res) => {
     const dashboardCountCollection =
       getDB("taskify").collection("dashboardCount");
     const result = await dashboardCountCollection.find().toArray();
-    res.status(200).json({
+    res?.status(200).json({
       success: true,
       data: result,
       message: "Dashboard counts retrieved successfully",
     });
   } catch (error) {
     console.error("Error fetching dashboardCount:", error);
-    res.status(500).json({
+    res?.status(500).json({
       success: false,
       error: "Failed to fetch dashboardCount",
       message: error.message,
@@ -24,9 +24,9 @@ const getDashboardCount = async (req, res) => {
 
 // all projects 
 
-const getAllProjects = async (req, res) => {
+ const getAllProjects = async (req, res) => {
   try {
-    const { status, user , client ,start_date_from,start_date_to,end_date_from,end_date_to,search } = req.query; 
+    const { status, user , client ,start_date_from,start_date_to,end_date_from,end_date_to,search } = req?.query; 
     const projectsCollection = getDB("taskify").collection("projects");
 
     const filter = {};
@@ -34,7 +34,7 @@ const getAllProjects = async (req, res) => {
 
     if (user) {
       if (!ObjectId.isValid(user)) {
-        return res.status(400).json({
+        return res?.status(400).json({
           success: false,
           message: "Invalid user ID format",
         });
@@ -44,7 +44,7 @@ const getAllProjects = async (req, res) => {
 
     if (client) {
       if (!ObjectId.isValid(client)) {
-        return res.status(400).json({
+        return res?.status(400).json({
           success: false,
           message: "Invalid user ID format",
         });
@@ -81,14 +81,14 @@ const getAllProjects = async (req, res) => {
 
     const result = await projectsCollection.find(filter).toArray();
 
-    res.status(200).json({
+    res?.status(200).json({
       success: true,
       data: result,
       message: "Projects retrieved successfully",
     });
   } catch (error) {
     console.error("Error fetching projects:", error);
-    res.status(500).json({
+    res?.status(500).json({
       success: false,
       error: "Failed to fetch projects",
       message: error.message,
@@ -108,7 +108,7 @@ const getAllFavouriteProjects = async (req, res) => {
 
     if (user) {
       if (!ObjectId.isValid(user)) {
-        return res.status(400).json({
+        return res?.status(400).json({
           success: false,
           message: "Invalid user ID format",
         });
@@ -118,7 +118,7 @@ const getAllFavouriteProjects = async (req, res) => {
 
     if (client) {
       if (!ObjectId.isValid(client)) {
-        return res.status(400).json({
+        return res?.status(400).json({
           success: false,
           message: "Invalid client ID format",
         });
@@ -156,21 +156,21 @@ const getAllFavouriteProjects = async (req, res) => {
 
     // Check if no favourite projects are found
     if (result.length === 0) {
-      return res.status(200).json({
+      return res?.status(200).json({
         success: true,
         data: [],
         message: "No favourite projects found",
       });
     }
 
-    res.status(200).json({
+    res?.status(200).json({
       success: true,
       data: result,
       message: "Favourite projects retrieved successfully",
     });
   } catch (error) {
     console.error("Error fetching favourite projects:", error);
-    res.status(500).json({
+    res?.status(500).json({
       success: false,
       error: "Failed to fetch favourite projects",
       message: error.message,
@@ -183,14 +183,14 @@ const createProject = async (req, res) => {
     const projectData = req.body;
     const projectsCollection = getDB("taskify").collection("projects");
     const result = await projectsCollection.insertOne(projectData);
-    res.status(201).json({
+    res?.status(201).json({
       success: true,
       data: { _id: result.insertedId, ...projectData },
       message: "Project created successfully",
     });
   } catch (error) {
     console.error("Error creating project:", error);
-    res.status(500).json({
+    res?.status(500).json({
       success: false,
       message: "Failed to create project",
       error: error.message,
@@ -205,7 +205,7 @@ const updateProject = async (req, res) => {
 
   // Validate the favourite field (optional)
   if (typeof favourite !== "undefined" && typeof favourite !== "boolean") {
-    return res.status(400).json({
+    return res?.status(400).json({
       success: false,
       message: "Invalid value for favourite. It must be a boolean (true or false).",
     });
@@ -230,7 +230,7 @@ const updateProject = async (req, res) => {
 
   // Ensure that some fields are provided for the update
   if (Object.keys(updateFieldsToSet).length === 0) {
-    return res.status(400).json({
+    return res?.status(400).json({
       success: false,
       message: "No valid fields provided for update.",
     });
@@ -250,14 +250,14 @@ const updateProject = async (req, res) => {
     const updatedProject = result.value;
 
     // Successfully updated project
-    res.status(200).json({
+    res?.status(200).json({
       success: true,
       message: "Project updated successfully.",
       data: updatedProject,
     });
   } catch (error) {
     console.error("Error updating project:", error);
-    res.status(500).json({
+    res?.status(500).json({
       success: false,
       message: "An error occurred while updating the project.",
       error: error.message,
@@ -276,19 +276,19 @@ const deleteProject = async (req, res) => {
     });
 
     if (result.deletedCount === 1) {
-      res.status(200).json({
+      res?.status(200).json({
         success: true,
         message: "Project deleted successfully",
       });
     } else {
-      res.status(404).json({
+      res?.status(404).json({
         success: false,
         message: "Project not found",
       });
     }
   } catch (error) {
     console.error("Error deleting project:", error);
-    res.status(500).json({
+    res?.status(500).json({
       success: false,
       error: "Failed to delete project",
       message: error.message,
