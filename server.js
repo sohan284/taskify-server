@@ -6,7 +6,8 @@ const taskRoutes = require("./routes/taskRoutes");
 const userRoutes = require("./routes/userRoutes");
 const todosRoutes = require("./routes/todosRoutes");
 const statusesRoutes = require("./routes/statusRoutes");
-const noteRoutes = require("./routes/noteRoutes")
+const noteRoutes = require("./routes/noteRoutes");
+const meetingRoutes = require("./routes/meetingRoutes")
 const port = 5000;
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(
   todosRoutes,
   statusesRoutes,
   noteRoutes,
+  meetingRoutes,
 );
 
 // Base route

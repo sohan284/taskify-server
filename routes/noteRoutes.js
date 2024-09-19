@@ -1,7 +1,5 @@
 const express = require("express");
-
-// const { getAllStatus, createStatus, deleteStatus, updateStatus } = require("../controllers/statusController");
-const { getNotes, createNote, deleteNote, updateNote } = require("../controllers/NoteController");
+const { createNote, getNotes, updateNote, deleteNote } = require("../controllers/NoteController");
 
 const router = express.Router();
 
