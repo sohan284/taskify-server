@@ -1,7 +1,6 @@
 const { ObjectId } = require("mongodb");
 // const jwt = require("jwt-simple");
 const { getDB } = require("../config/db");
-const { getAllProjects } = require("./projectController");
 
 const getUserList = async (req, res) => {
   try {
@@ -11,21 +10,31 @@ const getUserList = async (req, res) => {
 
     // Filter for users based on role
     const userFilter = {};
-    if (role) userFilter["role"] =role;
-    console.log(userFilter);
+    if (role) {
+      userFilter["role"] = role;  // If role is provided, filter by role
+    } else {
+      userFilter["role"] = { $ne: "client" };  // If no role is provided, exclude "client" role
+    }
+
     const users = await usersCollection.find(userFilter).toArray();
     
 
     // Use Promise.all to handle the asynchronous mapping
     const usersWithProjectCount = await Promise.all(users.map(async (user) => {
-      // Filter for projects related to the user, without applying the role filter
-      const projectFilter = { "users._id": `${user._id}` };
-      const projectResult = await projectsCollection.find(projectFilter).toArray();
+      // Filter for projects where the user is in the 'users' array
+      const userProjectFilter = { "users._id": `${user._id}` };
+      const userProjectResult = await projectsCollection.find(userProjectFilter).toArray();
 
+      // Filter for projects where the user is in the 'clients' array
+      const clientProjectFilter = { "clients._id": `${user._id}` };
+      const clientProjectResult = await projectsCollection.find(clientProjectFilter).toArray();
+
+      // Combine both counts into a single projectCount
+      const projectCount = userProjectResult.length + clientProjectResult.length;
       // Add projectCount to user
       return {
         ...user,
-        projectCount: projectResult.length,
+        projectCount,
       };
     }));
     
@@ -35,7 +44,6 @@ const getUserList = async (req, res) => {
       message: "Users retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch users",

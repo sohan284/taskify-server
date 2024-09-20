@@ -245,7 +245,6 @@ const updateProject = async (req, res) => {
     );
 
     // Log the result of the update operation
-    console.log("Update result:", result);
 
     const updatedProject = result.value;
 

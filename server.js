@@ -8,6 +8,7 @@ const todosRoutes = require("./routes/todosRoutes");
 const statusesRoutes = require("./routes/statusRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const meetingRoutes = require("./routes/meetingRoutes")
+const tagRoutes = require("./routes/tagRoutes")
 const port = 5000;
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(
   statusesRoutes,
   noteRoutes,
   meetingRoutes,
+  tagRoutes,
 );
 
 // Base route

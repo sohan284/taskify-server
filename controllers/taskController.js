@@ -85,7 +85,6 @@ const updateTask = async (req, res) => {
     );
 
     // Log the result of the update operation
-    console.log("Update result:", result);
 
     const updatedTask = result.value;
 
