@@ -5,15 +5,22 @@ const { getAllProjects } = require("./projectController");
 
 const getUserList = async (req, res) => {
   try {
+    const { role } = req?.query; 
     const usersCollection = getDB("taskify").collection("users");
     const projectsCollection = getDB("taskify").collection("projects");
 
-    const users = await usersCollection.find().toArray();
+    // Filter for users based on role
+    const userFilter = {};
+    if (role) userFilter["role"] =role;
+    console.log(userFilter);
+    const users = await usersCollection.find(userFilter).toArray();
+    
 
     // Use Promise.all to handle the asynchronous mapping
     const usersWithProjectCount = await Promise.all(users.map(async (user) => {
-      const filter = { "users._id": `${user._id}` };
-      const projectResult = await projectsCollection.find(filter).toArray();
+      // Filter for projects related to the user, without applying the role filter
+      const projectFilter = { "users._id": `${user._id}` };
+      const projectResult = await projectsCollection.find(projectFilter).toArray();
 
       // Add projectCount to user
       return {
@@ -36,6 +43,7 @@ const getUserList = async (req, res) => {
     });
   }
 };
+
 
 const getSingleUser = async (req, res) => {
   try {
@@ -72,6 +80,7 @@ const upsertUser = async (req, res) => {
       displayName,
       lastName,
       email,
+      company,
       countryCode,
       phoneNumber,
       password,
@@ -106,6 +115,7 @@ const upsertUser = async (req, res) => {
         displayName,
         lastName,
         email,
+        company,
         countryCode,
         phoneNumber,
         password, // You should hash this before saving it in production for security
