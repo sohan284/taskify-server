@@ -129,9 +129,62 @@ const deleteStatus = async (req, res) => {
     }
 };
 
+
+const deleteStatuses = async (req, res) => {
+    const statusIds = req.body.ids; // Expecting an array of IDs
+
+    if (!Array.isArray(statusIds) || statusIds.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid input: Please provide an array of status IDs.",
+        });
+    }
+
+    try {
+        const statusesCollection = getDB("taskify").collection("statuses");
+
+        // Filter out invalid IDs and log invalid ones for debugging
+        const objectIds = statusIds.map(id => {
+            if (!ObjectId.isValid(id)) {
+                console.error(`Invalid ObjectId: ${id}`);  // Log the invalid ID for debugging
+                throw new Error(`Invalid ObjectId: ${id}`);
+            }
+            return new ObjectId(id); // Only convert valid IDs
+        });
+
+        // Proceed with the deletion only if all IDs are valid
+        const result = await statusesCollection.deleteMany({
+            _id: { $in: objectIds },
+        });
+
+        if (result.deletedCount > 0) {
+            return res.status(200).json({
+                success: true,
+                message: `${result.deletedCount} statuses deleted successfully`,
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: "No statuses found for the given IDs",
+            });
+        }
+    } catch (error) {
+        console.error("Error deleting statuses:", error);  // Log the actual error for debugging
+        return res.status(500).json({
+            success: false,
+            message: `Failed to delete statuses: ${error.message}`,
+        });
+    }
+};
+
+
+
+
+
 module.exports = {
     getAllStatus,
     createStatus,
     updateStatus,
-    deleteStatus
+    deleteStatus,
+    deleteStatuses
 };
