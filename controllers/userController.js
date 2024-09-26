@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-// const jwt = require("jwt-simple");
+const jwt = require("jsonwebtoken");
 const { getDB } = require("../config/db");
 
 const getUserList = async (req, res) => {
@@ -81,9 +81,11 @@ const getSingleUser = async (req, res) => {
     });
   }
 };
+
 const upsertUser = async (req, res) => {
   try {
     const usersCollection = getDB("taskify").collection("users");
+
     const {
       displayName,
       lastName,
@@ -91,8 +93,7 @@ const upsertUser = async (req, res) => {
       company,
       countryCode,
       phoneNumber,
-      password,
-      confirmPassword,
+      password, 
       dateOfBirth,
       dateOfJoining,
       role,
@@ -106,15 +107,7 @@ const upsertUser = async (req, res) => {
       photoURL,
     } = req.body;
 
-    // Ensure password matches confirmPassword
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        error: "Passwords do not match",
-      });
-    }
 
-    // Build the filter based on the user's email (upsert will either update or insert)
     const filter = { email };
     const options = { upsert: true };
 
@@ -126,7 +119,7 @@ const upsertUser = async (req, res) => {
         company,
         countryCode,
         phoneNumber,
-        password, // You should hash this before saving it in production for security
+        password,
         dateOfBirth,
         dateOfJoining,
         role,
@@ -143,10 +136,27 @@ const upsertUser = async (req, res) => {
 
     const result = await usersCollection.updateOne(filter, updateDoc, options);
 
+    // Use the upserted ID or the existing user ID
+    const userId = result.upsertedId
+      ? result.upsertedId._id
+      : (await usersCollection.findOne(filter))._id;
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: userId, // Use the ID from the result
+        email: email,
+        role: role,
+      },
+      process.env.JWT_SECRET, // Secret key stored in env variables
+      { expiresIn: "1h" } // Token expiry time
+    );
+
     res.status(200).json({
       success: true,
       data: result,
-      message: "User upserted successfully",
+      token, // Include the generated token in the response
+      message: "User upserted and token generated successfully",
     });
   } catch (error) {
     console.error("Error upserting user:", error);
@@ -157,6 +167,40 @@ const upsertUser = async (req, res) => {
     });
   }
 };
+
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  const usersCollection = getDB("taskify").collection("users");
+
+  try {
+    const user = await usersCollection.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" } 
+    );
+
+    res.status(200).json({ token, message: "Login successful" });
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to log in user",
+      message: error.message,
+    });
+  }
+};
+
+
 const deleteUser = async (req, res) => {
   const userId = req.params.id;
 
@@ -191,4 +235,5 @@ module.exports = {
   upsertUser,
   getSingleUser,
   deleteUser,
+  loginUser,
 };
