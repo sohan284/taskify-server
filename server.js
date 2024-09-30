@@ -11,6 +11,7 @@ const meetingRoutes = require("./routes/meetingRoutes")
 const tagRoutes = require("./routes/tagRoutes")
 const paymentRoutes = require("./routes/paymentRoutes")
 const priorityRoutes = require('./routes/priorityRoutes')
+const logRoutes = require('./routes/LogRoutes')
 const port = 5000;
 
 const app = express();
@@ -35,6 +36,7 @@ app.use(
   tagRoutes,
   paymentRoutes,
   priorityRoutes,
+  logRoutes,
 );
 
 // Base route

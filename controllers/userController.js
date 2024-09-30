@@ -4,40 +4,46 @@ const { getDB } = require("../config/db");
 
 const getUserList = async (req, res) => {
   try {
-    const { role } = req?.query; 
+    const { role } = req?.query;
     const usersCollection = getDB("taskify").collection("users");
     const projectsCollection = getDB("taskify").collection("projects");
 
     // Filter for users based on role
     const userFilter = {};
     if (role) {
-      userFilter["role"] = role;  // If role is provided, filter by role
+      userFilter["role"] = role; // If role is provided, filter by role
     } else {
-      userFilter["role"] = { $ne: "client" };  // If no role is provided, exclude "client" role
+      userFilter["role"] = { $ne: "client" }; // If no role is provided, exclude "client" role
     }
 
     const users = await usersCollection.find(userFilter).toArray();
-    
 
     // Use Promise.all to handle the asynchronous mapping
-    const usersWithProjectCount = await Promise.all(users.map(async (user) => {
-      // Filter for projects where the user is in the 'users' array
-      const userProjectFilter = { "users._id": `${user._id}` };
-      const userProjectResult = await projectsCollection.find(userProjectFilter).toArray();
+    const usersWithProjectCount = await Promise.all(
+      users.map(async (user) => {
+        // Filter for projects where the user is in the 'users' array
+        const userProjectFilter = { "users._id": `${user._id}` };
+        const userProjectResult = await projectsCollection
+          .find(userProjectFilter)
+          .toArray();
 
-      // Filter for projects where the user is in the 'clients' array
-      const clientProjectFilter = { "clients._id": `${user._id}` };
-      const clientProjectResult = await projectsCollection.find(clientProjectFilter).toArray();
+        // Filter for projects where the user is in the 'clients' array
+        const clientProjectFilter = { "clients._id": `${user._id}` };
+        const clientProjectResult = await projectsCollection
+          .find(clientProjectFilter)
+          .toArray();
 
-      // Combine both counts into a single projectCount
-      const projectCount = userProjectResult.length + clientProjectResult.length;
-      // Add projectCount to user
-      return {
-        ...user,
-        projectCount,
-      };
-    }));
-    
+        // Combine both counts into a single projectCount
+        const projectCount =
+          userProjectResult.length + clientProjectResult.length;
+        // Add projectCount to user
+        return {
+          ...user,
+          projectCount,
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
       data: usersWithProjectCount,
@@ -51,7 +57,6 @@ const getUserList = async (req, res) => {
     });
   }
 };
-
 
 const getSingleUser = async (req, res) => {
   try {
@@ -93,7 +98,7 @@ const upsertUser = async (req, res) => {
       company,
       countryCode,
       phoneNumber,
-      password, 
+      password,
       dateOfBirth,
       dateOfJoining,
       role,
@@ -106,7 +111,6 @@ const upsertUser = async (req, res) => {
       requireEmailVerification,
       photoURL,
     } = req.body;
-
 
     const filter = { email };
     const options = { upsert: true };
@@ -147,6 +151,8 @@ const upsertUser = async (req, res) => {
         userId: userId, // Use the ID from the result
         email: email,
         role: role,
+        name: displayName,
+        photoURL: photoURL,
       },
       process.env.JWT_SECRET, // Secret key stored in env variables
       { expiresIn: "1h" } // Token expiry time
@@ -184,9 +190,15 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email ,role : user.role },
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+        name: user.displayName,
+        photoURL: user.photoURL,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } 
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({ token, message: "Login successful" });
@@ -199,7 +211,6 @@ const loginUser = async (req, res) => {
     });
   }
 };
-
 
 const deleteUser = async (req, res) => {
   const userId = req.params.id;
