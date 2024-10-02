@@ -7,11 +7,11 @@ const userRoutes = require("./routes/userRoutes");
 const todosRoutes = require("./routes/todosRoutes");
 const statusesRoutes = require("./routes/statusRoutes");
 const noteRoutes = require("./routes/noteRoutes");
-const meetingRoutes = require("./routes/meetingRoutes")
-const tagRoutes = require("./routes/tagRoutes")
-const paymentRoutes = require("./routes/paymentRoutes")
-const priorityRoutes = require('./routes/priorityRoutes')
-const logRoutes = require('./routes/LogRoutes')
+const meetingRoutes = require("./routes/meetingRoutes");
+const tagRoutes = require("./routes/tagRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const priorityRoutes = require("./routes/priorityRoutes");
+const logRoutes = require("./routes/LogRoutes");
 const port = 5000;
 
 const app = express();
@@ -36,7 +36,7 @@ app.use(
   tagRoutes,
   paymentRoutes,
   priorityRoutes,
-  logRoutes,
+  logRoutes
 );
 
 // Base route
@@ -48,5 +48,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// Export the Express app
 module.exports = app;
