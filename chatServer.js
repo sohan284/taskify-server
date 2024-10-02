@@ -16,7 +16,7 @@ const io = socketIo(server, {
     methods: ["GET", "POST"],
   },
 });
-const users = {}; // Maps socket IDs to usernames
+const users = {};
 
 // Middleware
 app.use(cors());
