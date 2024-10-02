@@ -20,7 +20,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
 connectDB();
 
 // Routes
@@ -39,7 +38,6 @@ app.use(
   logRoutes
 );
 
-// Base route
 app.get("/", (req, res) => {
   res.send("Hello From Taskify!");
 });
